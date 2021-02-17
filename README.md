@@ -1,2 +1,2 @@
-# admin-web
+# easy-admin-web
 

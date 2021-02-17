@@ -13,7 +13,8 @@
           {{username}} <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-on:click.native="handleUserCenter">个人中心</el-dropdown-item>
+          <el-dropdown-item v-on:click.native="handleUserCenter">个人信息</el-dropdown-item>
+          <el-dropdown-item v-on:click.native="handleUpdatePassword">修改密码</el-dropdown-item>
           <el-dropdown-item v-on:click.native="handleLogout">退出登陆</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -40,9 +41,10 @@ export default {
       alert('handleUserCenter')
     },
     handleLogout() {
-      this.$store.dispatch('handleLogout').then(res => {
-        this.$router.push('/login')
-      })
+      this.$store.commit('removeUserName')
+      this.$store.commit('removeToken')
+      this.$store.commit('removeRefreshToken')
+      this.$router.push('/login')
     }
     
   }

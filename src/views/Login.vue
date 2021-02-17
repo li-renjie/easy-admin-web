@@ -24,8 +24,8 @@ export default {
   data() {
     return {
       loginForm: {
-        account: "super_admin",
-        pass: "123456"
+        account: "admin",
+        pass: "admin."
       },
       rules: {
         account: [
@@ -51,8 +51,8 @@ export default {
             username: this.loginForm.account,
             password: this.loginForm.pass
           };
-          this.$store.dispatch('handleLogin',loginParams).then(res => {
-            this.$store.dispatch('handleUserInfo').then( res => {
+          this.$store.dispatch('handleLogin', loginParams).then(res => {
+            this.$store.dispatch('handleUserInfo').then(res => {
               this.logining = false;
               this.$router.push('/')    //登陆、获取用户信息成功后跳转至首页
             }).catch(err => {
@@ -60,7 +60,7 @@ export default {
               this.logining = false;
               console.log(err)
             })
-          }).catch( err => {
+          }).catch(err => {
             this.isFailed = true
             this.logining = false;
             console.log(err)

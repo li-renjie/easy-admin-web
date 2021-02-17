@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     getMenuList() {
-      let roles = this.$store.state.user.role
+      let roles = this.$store.state.user.roles
       let routes = this.$router.options.routes
       return getMenuListByRoutes(routes, roles)
     },

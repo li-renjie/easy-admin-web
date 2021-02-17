@@ -69,28 +69,28 @@ export default new Router({
           name: 'user',
           meta: {
             title: '用户管理',
-            icon: 'el-icon-menu'
+            icon: 'el-icon-user'
           },
           component: () => import('./views/user/UserTable.vue')
-        },
-        {
-          path: 'permission',
-          name: 'permission',
-          meta: {
-            title: '权限管理',
-            icon: 'el-icon-menu',
-            role: ['super_admin']
-          },
-          component: RouteInfo
         },
         {
           path: 'role',
           name: 'role',
           meta: {
             title: '角色管理',
-            icon: 'el-icon-share',
+            icon: 'el-icon-s-custom',
           },
-          component: RouteInfo
+          component: () => import('./views/role/RoleTable.vue')
+        },
+        {
+          path: 'permission',
+          name: 'permission',
+          meta: {
+            title: '权限管理',
+            icon: 'el-icon-s-claim',
+            role: ['super_admin']
+          },
+          component: () => import('./views/permission/PermissionTable.vue')
         },
       ]
     },

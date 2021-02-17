@@ -1,37 +1,58 @@
-import { login, getUserInfo, logout } from '@/api/user'
-import { setToken, getToken, removeToken, setUserName, getUserName, removeUserName} from '@/utils/user'
+import { login, getToken, getNewToken, getUserInfo, logout } from '@/api/auth'
+import {
+  setUserName, getUserName, removeUserName,
+  setLocalToken, getLocalToken, removeLocalToken,
+  getLocalRefreshToken, setLocalRefreshToken, removeLocalRefreshToken
+} from '@/utils/user'
 
 export default {
   state: {
     userName: getUserName(),
-    token: getToken(),
-    role: [],    //用户角色
+    email: '',
+    avatar: '',
+    token: getLocalToken(),
+    refreshToken: getLocalRefreshToken(),
+    roles: [],          // 用户角色
+    permissions: [],    // 用户权限
     hasGetUserInfo: false,
-    //avatar: '',
   },
   getters: {
     //
   },
   mutations: {
-    setUserName (state,name) {
+    setUserName (state, name) {
       state.userName = name
       //localStorage.setItem('username',name);
-      setUserName(name)   //调用@/utils/user.js中的同名函数
-    },
-    setToken (state,token) {
-      state.token = token
-      setToken(token)
+      setUserName(name)
     },
     removeUserName (state) {
       state.userName = ''
       removeUserName()
     },
+    setEmail (state, email) {
+      state.userName = email
+    },
+    setToken (state, token) {
+      state.token = token
+      setLocalToken(token)
+    },
     removeToken (state) {
       state.token = ''
-      removeToken()
+      removeLocalToken()
     },
-    setRole (state, role) {
-      state.role = role
+    setRefreshToken (state, token) {
+      state.refreshToken = token
+      setLocalRefreshToken(token)
+    },
+    removeRefreshToken (state) {
+      state.refreshToken = ''
+      removeLocalRefreshToken()
+    },
+    setRoles (state, roles) {
+      state.roles = roles
+    },
+    setPermissions (state, permissions) {
+      state.permissions = permissions
     },
     setHasGetUserInfo (state, status) {
       state.hasGetUserInfo = status
@@ -39,38 +60,66 @@ export default {
     
   },
   actions: {
-    //登陆
-    handleLogin( {commit}, {username,password}) {
+    // 登陆，获取 access token 和 refresh token
+    handleLogin ({ commit }, { username, password }) {
       return new Promise((resolve, reject) => {
-        login( {username, password} ).then( res => {
+        getToken({ username, password }).then( res => {
           const data = res.data
-          if (data.token){
-            commit('setToken', data.token)
+          console.log(data)
+          if (data.access && data.refresh) {
+            commit('setToken', data.access)
+            commit('setRefreshToken', data.refresh)
             resolve()
           } else {
-            reject('No token in response!')
+            reject('Can not get access token and refresh token in response!')
           }
-        }).catch( err => {
+        }).catch(err => {
           reject(err)
         })
       })
     },
-    //获取用户信息
-    handleUserInfo ({ state, commit }) {
-      return new Promise((resolve,reject) => {
-        getUserInfo(state.token).then(res => {
+    // 获取并更新 access token
+    handleNewToken ({ commit }) {
+      return new Promise((resolve, reject) => {
+        getNewToken().then(res => {
           const data = res.data
-          commit('setUserName', data.data.username)
-          commit('setRole',data.data.role)
-          commit('setHasGetUserInfo',true)
+          if (data.access) {
+            commit('setToken', data.access)
+            resolve()
+          } else {
+            reject('Can not get access token in response!')
+          }
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    // 清理 token
+    resetToken ({commit}) {
+      return new Promise((resolve) => {
+        commit('removeToken')
+        commit('removeRefreshToken')
+        resolve()
+      })
+    },
+    // 获取用户信息
+    handleUserInfo ({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        getUserInfo().then(res => {
+          const data = res.data
+          commit('setUserName', data.username)
+          commit('setEmail', data.email)
+          commit('setRoles', data.roles)
+          commit('setPermissions', data.permissions)
+          commit('setHasGetUserInfo', true)
           resolve()
         }).catch(err => {
           reject(err)
         })
       })
     },
-    //退出登陆
-    handleLogout ( {commit, state}) {
+    // 退出登陆
+    handleLogout ({ commit, state }) {
       return new Promise((resolve, reject) => {
         logout().then((res) => {
           commit('removeUserName')
